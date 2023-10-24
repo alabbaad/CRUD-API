@@ -1,0 +1,21 @@
+{
+  "name": "crud-api",
+  "version": "1.0.0",
+  "description": "A basic CRUD API using node.js, express.js and MYSQL",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "CRUD",
+    "API",
+    "node.js",
+    "express.js"
+  ],
+  "author": "Sanni-Anibire Toyyib",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql": "^2.18.1"
+  }
+}
