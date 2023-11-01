@@ -8,4 +8,8 @@ router.put('/:id', customer.update)
 router.delete('/', customer.deleteAll)
 router.delete('/:id', customer.deleteOne)
 
+/*-----------------------------------------------------*/
+
+
+
 module.exports = router
