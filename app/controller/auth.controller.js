@@ -1,12 +1,51 @@
 const db = require("../db.config")
+//import passport and the passport strategy to be used.
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy;
 
-const user = [
-    {id:1, fname: "Sanni-Anibire", lname:"Toyyib", email:"sanni@yahoo.com", pass:"admin"}
+const bcrypt = require ('bcryptjs')
+
+
+
+//use this in place of the database
+const users = [
+{   id:1, 
+    fname: "Sanni-Anibire", 
+    lname:"Toyyib", 
+    email:"sanni@yahoo.com", 
+    password:"admin"}
 ]
+// Passport config
+
+//Use the passport 
+passport.use(
+    new LocalStrategy(function verify (email, password, done){
+        const user = users.find((u) => u.email === email);
+
+        if (!user) {
+            return done(null, false, { message: 'Incorrect username.' });
+          }
+
+        if (user.password !== password){
+            return done(null, false, { message: 'Incorrect password.' });
+        }
+
+        return (next, user)
+    })
+)
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+  });
+  
+  passport.deserializeUser((id, done) => {
+    const user = users.find((u) => u.id === id);
+    done(null, user);
+  });
 
 
+
+//create a new user and add to the database
 exports.signup = (req, res)=>{
     const {id, fname, lname, email, pass} = req.body
 
@@ -45,22 +84,18 @@ exports.signup = (req, res)=>{
         data: req.body
     })
 }
-
 }
 
-// // file:app/authentication/middleware.js
-// function authenticationMiddleware () {
-//     return function (req, res, next) {
-//       if (req.isAuthenticated()) {
-//         return next()
-//       }
-//       res.redirect('/login')
-//     }
-//   }
+//use passport to login into the application
+exports.login = (req, res, next)=>{
+    passport.authenticate('local', {
+        successRedirect: '/dashboard',
+        failureRedirect: '/signup',
+        //failureFlash: true, // Enable flash messages for error handling
+      }) (req, res, next)
+}
 
-exports.login = (req, res)=>{
-    res.status(200).send({
-        message:"This is endpoint is working",
-        data: user
-    })
+
+exports.trial = (req, res, next)=>{
+    res.send("not authenticated")
 }
