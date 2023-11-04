@@ -1,45 +1,32 @@
 const user = require("../model/auth.model")
 
-
+const bcrypt = require('bcryptjs')
+const saltRounds = 5
 
 //create a new user and add to the database
 exports.signup = (req, res)=>{
-    const {fname, lname, email, phone, pass} = req.body
+        if (req.body) {
+        //const {fname, lname, email, phone, pass} = req.body
+        
+          bcrypt.hash(req.body.pass, saltRounds, (err, hash) => {
+            if (err) {
+              console.error(err)
+            }
+            // use the index of the password value to pass to bcrypt
+            // Store hash in your password DB.
+            req.body.pass = hash // replace plain text password with hash
+            // console.log(userData)
 
-    console.log
-    if (!req.body){
-        res.status(400).send({
-            message: "Fields cannot be empty"
-        })
-    }else if (!req.body.phone){
-        res.status(400).send({
-            message: "phone field is missing"
-    })
-}else if (!req.body.fname){
-        res.status(400).send({
-            message: "First name field is missing"
-    })
-}else if (!req.body.lname){
-    res.status(400).send({
-        message: "Last name field is missing"
-    });
-} else if (!req.body.email){
-    res.status(400).send({
-        message: "Email field is missing"
-      });
-} else if (!req.body.pass){
-    res.status(400).send({
-        message: "Password missing"
-    })
-} else {
-    user.create(req.body)
-
-    res.status(200).send({
-        message: "Registration successful!!",
-        data: req.body
-    })
-    console.log("Registration successful");
-}
+            user.create(req.body, (error, results)=>{
+                res.status(200).json({ 
+                    message: "User created",
+                    user: results })
+            })
+            
+          })
+        } else {
+          res.status(400).send("Error")
+        }
 }
 
 //use passport to login into the application
@@ -50,11 +37,11 @@ exports.login = (req, res, next)=>{
         res.status(400).send({
             message: "body cannot be empty"
         })
-    } else if (!req.body.email){
+    } else if (!email){
         res.status(400).send({
             message: "email missing, please include email."
         }) 
-    } else if (!req.body.pass){
+    } else if (!pass){
         res.status(400).send({
             message: "passwaord missing, please include password"
         })
