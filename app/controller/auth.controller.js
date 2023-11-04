@@ -2,8 +2,6 @@ const user = require("../model/auth.model")
 
 
 
-
-
 //create a new user and add to the database
 exports.signup = (req, res)=>{
     const {fname, lname, email, phone, pass} = req.body

@@ -1,8 +1,5 @@
 const db = require("../db.config")
 
-
-
-
 const User = {
   // Function to create a new user
   create: (userData, callback) => {
