@@ -1,62 +1,21 @@
-const db = require("../db.config")
-//import passport and the passport strategy to be used.
-const passport = require('passport')
-const LocalStrategy = require('passport-local').Strategy;
-
-const bcrypt = require ('bcryptjs')
+const user = require("../model/auth.model")
 
 
-
-//use this in place of the database
-const users = [
-{   id:1, 
-    fname: "Sanni-Anibire", 
-    lname:"Toyyib", 
-    email:"sanni@yahoo.com", 
-    password:"admin"}
-]
-// Passport config
-
-//Use the passport 
-passport.use(
-    new LocalStrategy(function verify (email, password, done){
-        const user = users.find((u) => u.email === email);
-
-        if (!user) {
-            return done(null, false, { message: 'Incorrect username.' });
-          }
-
-        if (user.password !== password){
-            return done(null, false, { message: 'Incorrect password.' });
-        }
-
-        return (next, user)
-    })
-)
-
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-  });
-  
-  passport.deserializeUser((id, done) => {
-    const user = users.find((u) => u.id === id);
-    done(null, user);
-  });
 
 
 
 //create a new user and add to the database
 exports.signup = (req, res)=>{
-    const {id, fname, lname, email, pass} = req.body
+    const {fname, lname, email, phone, pass} = req.body
 
     console.log
     if (!req.body){
         res.status(400).send({
             message: "Fields cannot be empty"
         })
-    }else if (!req.body.id){
+    }else if (!req.body.phone){
         res.status(400).send({
-            message: "id field is missing"
+            message: "phone field is missing"
     })
 }else if (!req.body.fname){
         res.status(400).send({
@@ -75,24 +34,44 @@ exports.signup = (req, res)=>{
         message: "Password missing"
     })
 } else {
-    console.log("Registration successful");
-
-    user.push(req.body)
+    user.create(req.body)
 
     res.status(200).send({
         message: "Registration successful!!",
         data: req.body
     })
+    console.log("Registration successful");
 }
 }
 
 //use passport to login into the application
 exports.login = (req, res, next)=>{
-    passport.authenticate('local', {
-        successRedirect: '/dashboard',
-        failureRedirect: '/signup',
-        //failureFlash: true, // Enable flash messages for error handling
-      }) (req, res, next)
+    const {email, pass} = req.body
+
+    if (!req.body){
+        res.status(400).send({
+            message: "body cannot be empty"
+        })
+    } else if (!req.body.email){
+        res.status(400).send({
+            message: "email missing, please include email."
+        }) 
+    } else if (!req.body.pass){
+        res.status(400).send({
+            message: "passwaord missing, please include password"
+        })
+    } else {
+        user.login(req.body, (error, results) =>{
+            res.status(200).send({
+                data: "Login successful",
+                //message: `${user.login.result} found`
+                message: results
+            })
+            res.send(results[0])
+        })
+
+     
+    }
 }
 
 
