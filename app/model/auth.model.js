@@ -21,20 +21,20 @@ const User = {
   // Function to find a user by username and using the callback function to specify what to happen after
   login: (logindata, callback) => {
 
-    const query = 'SELECT * FROM customer_cred WHERE email = ? AND password = ?';
-    const values = [logindata.email, logindata.pass];
+    const query = 'SELECT * FROM customer_cred WHERE email = ?';
+    const values = [logindata];
     
     
     db.query(query, values, (error, results) => {
       if (error) {
         callback(error, null);
-        res.send(error)
+        //res.send(error)
       } else {
         if (results.length > 0) {
           callback(null, results[0]);
-         
+          //console.log(null, results[0]);
         } else {
-          callback(null, null);
+          console.log(null, null);
           
         }
       }

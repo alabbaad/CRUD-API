@@ -3,30 +3,27 @@ const app = express()
 const bodyParser = require('body-parser')
 const session = require('express-session')
 const cookieParser = require("cookie-parser")
+const filestore = require("session-file-store")(session)
+
 //Import the main Passport and Express-Session library
 const passport = require('passport')
 
-// define routes
-const authRouter = require("./app/router/auth.router.js")
-const customerRouter = require("./app/router/customer.router.js")
+
 
 app.use(bodyParser.json()) // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
 //import cookie-parser
-app.use("cookieParser")
+app.use(cookieParser())
 app.use(express.json())
 
+//Create session
 app.use(
   session({
     secret: "sanni",
-    //store: sessionStore,
+    store: new filestore(),
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      maxAge: 3600000, // 3600000 1 hour in milliseconds. The expiration time of the cookie to set it as a persistent cookie.
-      sameSite: true
-    }
   })
 )
 
@@ -37,19 +34,23 @@ app.use(passport.session())
 // allow passport to use "express-session".
 
 
-const port =  process.env.PORT || 8080;
-
-
-
+// define routes
+const authRouter = require("./app/router/auth.router.js")
+const customerRouter = require("./app/router/customer.router.js")
 
 // Use imported routes
 app.use('/customers', customerRouter);
 app.use('/auth', authRouter);
 
 
+
+
 app.get('/', (req, res)=>{
     res.send("###Welcome to my user API####")
 })
+
+
+const port =  process.env.PORT || 8080;
 
 app.listen(port, ()=>{
     console.log(`Server is running on port ${port}`)
