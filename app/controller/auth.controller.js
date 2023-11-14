@@ -2,31 +2,8 @@ const User = require("../model/auth.model")
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs')
-const saltRounds = 5
+const saltRounds = 10
 
-passport.use(new LocalStrategy({
-    usernameField: "email",
-    //passwordField: "password"
-}, function verify(email, password, done) {
-    //  email = req.body.email;
-    //  password = req.body.password;
-
-    console.log(email)
-    console.log(password)
-
-   User.login(email, (error, results)=>{
-        //res.send(results)
-        bcrypt.compare(password, results.password, function (err, data){
-            if (err) res.send(error)
-            if (data){
-                console.log(data)
-            }else{
-                console.log("Password mismatch")
-            }
-        })
-    }); 
-} 
-));
 
 //create a new user and add to the database
 exports.signup = (req, res)=>{
@@ -57,23 +34,43 @@ exports.signup = (req, res)=>{
 
 // Use Passport to login into the application
 exports.login = (req, res, next) => {
-    res.status(200).send("Logged in")
-    /*
-    passport.authenticate('local', function (err, user, info) {
-        //user = req.body
-          if (err) {
-          return res.status(500).send("Authentication error.");
-        }
-        if (!user) {
-          console.error(info)
-          return res.status(400).send("Authentication failed.");
-        }
-        req.login(user, function (err) {
-          if (err) {
-            return res.status(500).send("Authentication error. User input");
-          }
-          return res.status(200).send("Login successful");
-        });
-      })(req, res, next);
-      */
+//const {email, password} = req.body
+
+passport.authenticate('local', (err, user, info) => {
+  if (err) {
+    return res.status(500).json({ 
+      error: 'Authentication error',
+      message: "Passport unable to authenticate" });
+  }
+
+  if (!user) {
+    return res.status(400).json({ 
+      error: 'Authentication failed',
+      message: "No user found" });
+  }
+
+  req.logIn(user, (err) => {
+    if (err) {
+      console.log(user)
+      return res.status(500).json({ 
+        error: 'Authentication error',
+        message: 'Not sure what is happening here',
+        added: err});
+        
+    }
+
+    return res.status(200).json({ 
+      message: 'Login successful',
+      phoneNumber: user.phone});
+  });
+})(req, res, next);   
+  };
+
+  exports.isAuthenticated = (req, res, next) => {
+    // Check if the user is authenticated
+  if (req.isAuthenticated()) {
+    return next(); // User is authenticated, proceed to the next middleware or route handler
+  } else {
+    return res.status(401).json({ error: 'Unauthorized' }); // User is not authenticated, send 401 Unauthorized
+  }
   };
