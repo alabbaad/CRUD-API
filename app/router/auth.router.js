@@ -19,9 +19,28 @@ router.get('/login', (req, res)=>{
     res.send("Not logged in. Try again")
 })
 router.get('/protected', auth.isAuthenticated, (req, res)=>{
-    res.send("Hi! I'm logged in")
+    var user = req.user
+    if (!user){
+        res.send('user not authenticated')
+    }
+    res.json({
+        message: "Hi! I'm logged in",
+        user: req.user
+
 })
 
+})
+
+router.get('/trial', (req, res)=>{
+    var user = req.user
+    if (!user){
+        res.send('user not authenticated')
+    }
+    res.json({
+        message: "Hi! I'm logged in",
+        user: req.user
+})
+})
 router.get('/logout', (req, res) => {
     // Passport adds this method to the request
     // Redirect to the home page or any other desired page
